@@ -25,6 +25,7 @@
     </modules>
 
     <properties>
+        <docker.image.prefix>starbuxman</docker.image.prefix>
         <spring-integration-java-dsl.version>1.0.1.RELEASE</spring-integration-java-dsl.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
@@ -53,5 +54,36 @@
         </dependencies>
     </dependencyManagement>
 
+    <build>
+        <finalName>${project.artifactId}</finalName>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.spotify</groupId>
+                    <artifactId>docker-maven-plugin</artifactId>
+                    <version>0.2.3</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>build</goal>
+                            </goals>
+                            <phase>package</phase>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <imageName>${docker.image.prefix}/${project.artifactId}</imageName>
+                        <dockerDirectory>src/main/docker</dockerDirectory>
+                        <resources>
+                            <resource>
+                                <targetPath>/</targetPath>
+                                <directory>${project.build.directory}</directory>
+                                <include>${project.build.finalName}.jar</include>
+                            </resource>
+                        </resources>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
 </project>
