@@ -9,10 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-// TODO we're moving everything to JDBC so that in the ProvisionService we can use multiple resources in the same TX
-// TODO does the fact that we're trying to use multiple resources in the same TX indicate a code-smell?
-// TODO let's get t his working then see about teasing out to better microservice-style things
-
 public class FtpUserRepository extends JdbcRepository<FtpUser, String> {
 
     private static final String FTP_USER = "FTP_USER";
