@@ -2,6 +2,7 @@ package ftp.provisioner;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ftp.service.FtpUserManager;
 import ftp.service.FtpUserManagerConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,6 +18,7 @@ import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.dsl.amqp.Amqp;
 import org.springframework.integration.transformer.GenericTransformer;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.util.HashMap;
@@ -28,22 +30,18 @@ import java.util.UUID;
 @Import(FtpUserManagerConfiguration.class)
 public class Application {
 
+    private final ObjectMapper mapper = new ObjectMapper();
+    private Log log = LogFactory.getLog(getClass());
+    @Value("${ftp.host}")
+    private String host;
+    @Value("${ftp.port}")
+    private int port;
+    @Value("${ftp.amqp.requests}")
+    private String ftpRequests;
+
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
-
-    private final ObjectMapper mapper = new ObjectMapper();
-
-    private Log log = LogFactory.getLog(getClass());
-
-    @Value("${ftp.host}")
-    private String host;
-
-    @Value("${ftp.port}")
-    private int port;
-
-    @Value("${ftp.amqp.requests}")
-    private String ftpRequests;
 
     @Bean
     RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
@@ -66,10 +64,11 @@ public class Application {
                             String usr = map.get("user");
                             String password = UUID.randomUUID().toString();
 
+                            FtpProvision ftpProvision = ftpProvisionService.provisionFtpAccount(ws, usr, password);
 
                             //FtpProvisionService.FtpProvision ftpProvision = ftpProvisionService.createFtpUser(ws, usr, password) ;
 
-                            return null;
+                            return ftpProvision.getUri().toString();
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
@@ -88,5 +87,11 @@ public class Application {
         }
     }
 
+    @Bean
+    FtpProvisionService ftpProvisionService(JdbcTemplate jdbcTemplate,
+                                            FtpUserManager ftpUserManager,
+                                            @Value("${ftp.max-per-node:10}") int maxPerNode) {
+        return new FtpProvisionService(jdbcTemplate, ftpUserManager, maxPerNode);
+    }
 
 }
