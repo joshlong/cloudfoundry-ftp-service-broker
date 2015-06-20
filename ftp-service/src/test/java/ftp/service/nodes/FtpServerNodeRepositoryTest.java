@@ -23,6 +23,7 @@ public class FtpServerNodeRepositoryTest {
 
     @Autowired
     private FtpServerNodeRepository ftpServerNodeRepository;
+
     @Autowired
     private FtpUserRepository ftpUserRepository;
 

@@ -1,5 +1,7 @@
 package ftp.service;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.apache.ftpserver.FtpServer;
 import org.apache.ftpserver.FtpServerFactory;
 import org.apache.ftpserver.filesystem.nativefs.NativeFileSystemFactory;
@@ -8,6 +10,7 @@ import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.UserManager;
 import org.apache.ftpserver.listener.Listener;
 import org.apache.ftpserver.listener.ListenerFactory;
+import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,17 +21,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.util.Assert;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Method;
 import java.util.Collections;
 
 @SpringBootApplication
 public class Application {
+
     @Bean
     FileSystemFactory fileSystemFactory() {
         NativeFileSystemFactory fileSystemFactory = new NativeFileSystemFactory();
-        fileSystemFactory.setCreateHome(true);
         fileSystemFactory.setCaseInsensitive(false);
+        fileSystemFactory.setCreateHome(true);
         return fileSystemFactory::createFileSystemView;
     }
 
@@ -49,12 +55,18 @@ public class Application {
     }
 
     @Bean
-    DisposableBean destroysFtpServer(FtpServer ftpServer) {
-        return ftpServer::stop;
+    DisposableBean destroysFtpServer(Listener l,
+                                     FtpServer ftpServer) {
+
+        return () -> {
+            ftpServer.stop();
+            if (!l.isStopped()) l.stop();
+        };
     }
 
     @Bean
-    InitializingBean startsFtpServer(FtpServer ftpServer) throws Exception {
+    InitializingBean startsFtpServer(Listener l,
+                                     FtpServer ftpServer) throws Exception {
         return ftpServer::start;
     }
 

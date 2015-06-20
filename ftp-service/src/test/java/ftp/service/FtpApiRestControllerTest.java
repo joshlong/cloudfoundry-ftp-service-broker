@@ -65,7 +65,7 @@ public class FtpApiRestControllerTest {
     }
 
     @Test
-    public void testFtpServerNodeAndFtpUserProvisioning() throws Exception {
+    public void testFtpProvisioning() throws Exception {
 
 
         FtpApiRestController.FtpProvisionRequest ftpProvisionRequest =
@@ -79,7 +79,8 @@ public class FtpApiRestControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestString))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("location", new BaseMatcher<String>() {
+                .andExpect(header().string("Location", new BaseMatcher<String>() {
+
                     @Override
                     public void describeTo(Description description) {
                         description.appendText("the location should be an FTP endpoint!");
