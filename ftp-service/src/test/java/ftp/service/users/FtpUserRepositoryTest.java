@@ -1,23 +1,25 @@
-package ftp.service;
+package ftp.service.users;
 
+import ftp.service.Application;
+import ftp.service.nodes.FtpServerNode;
+import ftp.service.nodes.FtpServerNodeRepository;
+import ftp.service.users.FtpUser;
+import ftp.service.users.FtpUserRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = FtpUserRepositoryConfig.class)
-public class FtpUserRepositoryTest {
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringApplicationConfiguration(classes = Application.class)
+public class FtpUserRepositoryTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -26,26 +28,27 @@ public class FtpUserRepositoryTest {
     private FtpUserRepository ftpUserRepository;
 
     private FtpUser one, two;
+    private FtpServerNode ftpServerNode;
+
+    @Autowired
+    private FtpServerNodeRepository ftpServerNodeRepository;
 
     @Before
     public void before() {
 
         this.jdbcTemplate.execute("DELETE FROM FTP_USER");
+        this.ftpServerNode = this.ftpServerNodeRepository.save(new FtpServerNode(8999, "127.0.0.1"));
 
-        this.one = this.ftpUserRepository.save(new FtpUser("ws", "one", "pw", true));
+        assertNotNull(this.ftpServerNode);
+
+
+        this.one = this.ftpUserRepository.save(
+            new FtpUser("ws", "one", "pw", true, 0, true, this.ftpServerNode));
         assertNotNull("user should not be null", this.one);
 
-        this.two = this.ftpUserRepository.save(new FtpUser("ws", "two", "pw", true));
+        this.two = this.ftpUserRepository.save(new FtpUser("ws", "two", "pw", true, 0, true, this.ftpServerNode));
         assertNotNull("user should not be null", this.two);
     }
-
-/*
-    @Test
-    public void testFindByUsername() throws Exception {
-        Optional<FtpUser> byUsername = this.ftpUserRepository.findByUsername(this.one.getName());
-        assertEquals(this.one.getName(), byUsername.get().getName());
-
-    }*/
 
     @Test
     public void findById() throws Exception {
@@ -76,7 +79,7 @@ public class FtpUserRepositoryTest {
                 this.two.isAdmin(),
                 this.two.getMaxIdleTime(),
                 false,
-
+                this.ftpServerNode,
                 true // is this an existing entity that needs to be updated?
         );
 
@@ -88,18 +91,8 @@ public class FtpUserRepositoryTest {
 
     @Test
     public void findByUsername() {
-
         assertNotNull(this.ftpUserRepository.findByUsername(this.two.getName())
                 .get());
-
-
     }
-
-}
-
-@Configuration
-@SpringBootApplication
-@Import(FtpUserManagerConfiguration.class)
-class FtpUserRepositoryConfig {
 
 }

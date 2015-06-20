@@ -1,5 +1,6 @@
-package ftp.service;
+package ftp.service.users;
 
+import ftp.service.nodes.FtpServerNode;
 import org.apache.ftpserver.ftplet.Authority;
 import org.apache.ftpserver.ftplet.AuthorizationRequest;
 import org.apache.ftpserver.ftplet.User;
@@ -11,43 +12,43 @@ import org.springframework.data.domain.Modifiable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-// todo: clean the old JPA mappings up
-//@Entity
-//@Table(name = "FTP_USER")
+
 public class FtpUser implements User, Modifiable<String> {
 
 
     private transient boolean persisted;
-    //    @Transient
+
     private List<Authority> adminAuthorities = Collections.singletonList(new WritePermission());
-    //    @Transient
+
     private List<Authority> anonAuthorities = Arrays.asList(
             new ConcurrentLoginPermission(20, 2),
             new TransferRatePermission(4800, 4800));
-    //    @Id
+
     private String username;
-    private String workspace; // users in the same workspace will be able to share the same file system
+    private String workspace;
     private boolean admin;
     private String password;
-    private int maxIdleTime = 0; // no limit
+    private int maxIdleTime = 0;
     private boolean enabled;
-    FtpUser() {
-    }
 
-    public FtpUser(String ws, String username, String password, boolean admin) {
-        this(ws, username, password, admin, 0, true);
-    }
 
-    FtpUser(String workspace, String username, String password, boolean admin,
-            int maxIdleTime, boolean enabled, boolean persisted) {
-        this(workspace, username, password, admin, maxIdleTime, enabled);
-        this.setPersisted(persisted);
+    private final FtpServerNode ftpServerNode;
+
+    public FtpServerNode getFtpServerNode() {
+        return ftpServerNode;
     }
 
     public FtpUser(String workspace, String username, String password, boolean admin,
-                   int maxIdleTime, boolean enabled) {
+            int maxIdleTime, boolean enabled, FtpServerNode node, boolean persisted) {
+        this(workspace, username, password, admin, maxIdleTime, enabled, node);
+        this.setPersisted(persisted);
+    }
+
+     public FtpUser(String workspace, String username, String password, boolean admin,
+                   int maxIdleTime, boolean enabled, FtpServerNode node) {
         this.username = username;
         this.workspace = workspace;
+        this.ftpServerNode = node;
         this.admin = admin;
         this.password = password;
         this.maxIdleTime = maxIdleTime;

@@ -1,7 +1,10 @@
-package ftp.service;
+package ftp.service.users;
 
 import org.apache.ftpserver.ftplet.*;
 import org.apache.ftpserver.usermanager.UsernamePasswordAuthentication;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -10,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+@Component
 public class FtpUserManager implements UserManager {
 
     private static final AtomicReference<FtpUserManager> ROOT_FS = new AtomicReference<>();
@@ -18,12 +22,18 @@ public class FtpUserManager implements UserManager {
 
     private final File rootFileSystem;
 
-    public FtpUserManager(FtpUserRepository ftpUserRepository, File rootFileSystem) {
+    @Autowired
+    public FtpUserManager(FtpUserRepository ftpUserRepository,
+                  @Value("${ftp.root:${HOME}/Desktop/root}") File rootFileSystem) {
         this.ftpUserRepository = ftpUserRepository;
         this.rootFileSystem = rootFileSystem;
         ROOT_FS.compareAndSet(null, this);
     }
 
+    /*
+     * TODO: Hopefully this and the other method of almost the same name won't be required
+     * TODO: once we decouple our {@link FtpUserManager} from a normal file-system.
+     */
     public static File getHomeDirectory(String username) {
         FtpUserManager ftpUserManager = ROOT_FS.get();
         return ftpUserManager.getHomeDirectoryFor(username);
@@ -73,6 +83,7 @@ public class FtpUserManager implements UserManager {
 
     @Override
     public User authenticate(Authentication authentication) throws AuthenticationFailedException {
+        assertAboutAuthentication(authentication != null, "the authentication must not be null");
         Class<UsernamePasswordAuthentication> authenticationClass = UsernamePasswordAuthentication.class;
         assertAboutAuthentication(authenticationClass.isAssignableFrom(authentication.getClass()),
                 "you must login using a username and password");
@@ -92,6 +103,8 @@ public class FtpUserManager implements UserManager {
 
     @Override
     public boolean isAdmin(String s) throws FtpException {
-        return getAdminName().equals(s);
+        return this.ftpUserRepository.findByUsername(s)
+                .map(FtpUser::isAdmin)
+                .orElse(false);
     }
 }
