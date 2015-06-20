@@ -50,6 +50,8 @@ public class FtpApiRestControllerTest {
 
     private MockMvc mvc;
 
+    private ObjectMapper objectMapper = new ObjectMapper();
+
     @Before
     public void setUp() throws Exception {
         this.mvc = MockMvcBuilders.webAppContextSetup(this.context).build();
@@ -63,8 +65,9 @@ public class FtpApiRestControllerTest {
     }
 
     @Test
-    public void testCreate() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
+    public void testFtpServerNodeAndFtpUserProvisioning() throws Exception {
+
+
         FtpApiRestController.FtpProvisionRequest ftpProvisionRequest =
                 new FtpApiRestController.FtpProvisionRequest("user", "workspace", "password");
 
@@ -77,7 +80,6 @@ public class FtpApiRestControllerTest {
                 .content(requestString))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("location", new BaseMatcher<String>() {
-
                     @Override
                     public void describeTo(Description description) {
                         description.appendText("the location should be an FTP endpoint!");
@@ -86,8 +88,7 @@ public class FtpApiRestControllerTest {
                     @Override
                     public boolean matches(Object item) {
                         LogFactory.getLog(getClass()).info("uri: " + item);
-                        String v = String.class.cast( item) ;
-
+                        String v = String.class.cast(item);
                         return v.startsWith("ftp://") && v.contains(":") && v.contains("@");
                     }
                 }));
