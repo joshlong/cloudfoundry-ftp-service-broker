@@ -20,6 +20,7 @@
         <module>installer</module>
         <module>ftp-service-provisioner</module>
         <module>ftp-service-provisioner-client</module>
+        <module>ftp-api</module>
         <module>ftp-service-broker</module>
         <module>ftp-service</module>
     </modules>

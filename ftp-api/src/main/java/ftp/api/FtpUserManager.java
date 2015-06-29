@@ -1,4 +1,4 @@
-package ftp.service;
+package ftp.api;
 
 import org.apache.ftpserver.ftplet.*;
 import org.apache.ftpserver.usermanager.UsernamePasswordAuthentication;
@@ -24,7 +24,7 @@ public class FtpUserManager implements UserManager {
         ROOT_FS.compareAndSet(null, this);
     }
 
-    public static File getHomeDirectory(String username) {
+    static File getHomeDirectory(String username) {
         FtpUserManager ftpUserManager = ROOT_FS.get();
         return ftpUserManager.getHomeDirectoryFor(username);
     }

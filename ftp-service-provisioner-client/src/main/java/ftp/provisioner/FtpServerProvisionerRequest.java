@@ -3,7 +3,7 @@ package ftp.provisioner;
 
 /**
  * encodes the request to the FTP provisioner. This will be transformed into JSON
- * and then sent as the payload to the FTP service provisioner
+ * and then sent as the payload to the FTP api provisioner
  */
 public class FtpServerProvisionerRequest {
 

@@ -1,4 +1,4 @@
-package ftp.service;
+package ftp.api;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

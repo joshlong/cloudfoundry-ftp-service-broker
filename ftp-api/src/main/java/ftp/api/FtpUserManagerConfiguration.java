@@ -1,4 +1,4 @@
-package ftp.service;
+package ftp.api;
 
 import org.apache.ftpserver.ftplet.UserManager;
 import org.springframework.beans.factory.annotation.Value;

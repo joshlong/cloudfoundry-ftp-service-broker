@@ -1,4 +1,4 @@
-package ftp.service;
+package ftp.api;
 
 import org.apache.commons.logging.LogFactory;
 import org.apache.ftpserver.ftplet.Authority;

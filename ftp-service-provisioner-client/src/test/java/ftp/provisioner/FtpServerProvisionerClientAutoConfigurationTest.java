@@ -1,4 +1,4 @@
-package ftp;
+package ftp.provisioner;
 
 import ftp.provisioner.FtpServerProvisionerClient;
 import ftp.provisioner.FtpServerProvisionerClientAutoConfiguration;

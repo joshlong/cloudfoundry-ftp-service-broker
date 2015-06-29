@@ -2,9 +2,9 @@ package ftp.provisioner;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import ftp.service.FtpUser;
-import ftp.service.FtpUserManagerConfiguration;
-import ftp.service.FtpUserRepository;
+import ftp.api.FtpUser;
+import ftp.api.FtpUserManagerConfiguration;
+import ftp.api.FtpUserRepository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.ftpserver.ftplet.FtpException;
@@ -23,14 +23,17 @@ import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.dsl.amqp.Amqp;
 import org.springframework.integration.transformer.GenericTransformer;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
-import javax.sql.DataSource;
-import java.sql.Driver;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The provisioner receives requests and translates them into API invocations against the FTP API.
+ *
+ * The FTP API is also used by instances of the FTP server.
+ *
+ */
 @SpringBootApplication
 @Import(FtpUserManagerConfiguration.class)
 public class Application {
