@@ -23,10 +23,7 @@ import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.dsl.amqp.Amqp;
 import org.springframework.integration.transformer.GenericTransformer;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
-import javax.sql.DataSource;
-import java.sql.Driver;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -70,6 +67,9 @@ public class Application {
         };
     }
 
+    // TODO: Rewrite this in Spring Cloud Stream as a module
+    // https://github.com/spring-cloud/spring-cloud-dataflow/blob/master/spring-cloud-dataflow-module-deployers/spring-cloud-dataflow-module-deployer-lattice/src/main/java/org/springframework/cloud/dataflow/module/deployer/lattice/TaskModuleDeployer.java
+    // Write a planner that preemptive-ly schedules new instances at 80%?
     @Bean
     IntegrationFlow amqpReplyFlow(ConnectionFactory rabbitConnectionFactory,
                                   UserManager ftpUserManager) {

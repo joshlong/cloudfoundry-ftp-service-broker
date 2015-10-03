@@ -21,6 +21,7 @@ import java.util.Collections;
 @Import(FtpUserManagerConfiguration.class)
 public class FtpServerConfiguration {
 
+    // todo replace this with something that works on Mongo GridFS
     @Bean
     FileSystemFactory fileSystemFactory() {
         NativeFileSystemFactory fileSystemFactory = new NativeFileSystemFactory();
